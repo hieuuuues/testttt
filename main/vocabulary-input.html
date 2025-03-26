@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nhập Từ Vựng | Vocabulary Manager</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary-color: #007bff;
+        --background: #f7f9fc;
+        --card-bg: #ffffff;
+        --text-primary: #1a2a44;
+        --text-secondary: #6b7280;
+        --border-color: #e5e7eb;
+        --shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        --success: #22c55e;
+        --error: #ef4444;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Fira Code", Menlo, Courier, monospace;
+      }
+
+      body {
+        background: var(--background);
+        color: var(--text-primary);
+        min-height: 100vh;
+        padding: 1rem;
+        display: flex;
+        justify-content: center;
+        animation: fadeIn 0.5s ease-out;
+      }
+
+      .container {
+        max-width: 800px;
+        width: 100%;
+      }
+
+      .header {
+        margin-bottom: 1rem;
+      }
+
+      .back-button {
+        background: var(--card-bg);
+        color: var(--primary-color);
+        border: none;
+        border-radius: 8px;
+        padding: 0.5rem;
+        cursor: pointer;
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: var(--shadow);
+        transition: all 0.2s;
+        text-decoration: none;
+      }
+
+      .back-button:hover {
+        background: var(--primary-color);
+        color: white;
+      }
+
+      .vocabulary-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+      }
+
+      .vocabulary-card {
+        background: var(--card-bg);
+        padding: 1rem;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow);
+        position: relative;
+      }
+
+      .card-content {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        position: relative;
+      }
+
+      .form-group label {
+        font-weight: 500;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+      }
+
+      .form-group input {
+        width: 100%;
+        padding: 0.5rem;
+        border: 2px solid var(--primary-color);
+        border-radius: 6px;
+        font-size: 0.9rem;
+        background: var(--card-bg);
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+
+      .form-group input:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        outline: none;
+      }
+
+      .suggestions {
+        position: absolute;
+        top: calc(100% - 2.5rem);
+        left: calc(100% + 10px);
+        width: 200px;
+        background: var(--card-bg);
+        border: 2px solid var(--primary-color);
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+        max-height: 150px;
+        overflow-y: auto;
+        z-index: 10;
+        display: none;
+        padding: 0.5rem;
+      }
+
+      .suggestions div {
+        padding: 0.5rem;
+        cursor: pointer;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .suggestions div:last-child {
+        border-bottom: none;
+      }
+
+      .suggestions div:hover {
+        background: var(--primary-color);
+        color: white;
+      }
+
+      .image-preview {
+        width: 100%;
+        height: 100px;
+        border-radius: 8px;
+        background: var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .image-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .image-preview input {
+        display: none;
+      }
+
+      .delete-button {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: #ef4444;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s;
+      }
+
+      .delete-button:hover {
+        background: #dc2626;
+      }
+
+      .buttons {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+      }
+
+      .btn {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 6px;
+        font-weight: 500;
+        cursor: pointer;
+        background: var(--primary-color);
+        color: white;
+        transition: all 0.2s;
+      }
+
+      .btn:hover {
+        background: #0056b3;
+      }
+
+      .btn-secondary {
+        background: var(--border-color);
+        color: var(--primary-color);
+      }
+
+      .btn-secondary:hover {
+        background: #d1d5db;
+      }
+
+      .notification {
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        color: white;
+        opacity: 0;
+        transform: translateY(50px);
+        transition: all 0.3s;
+        box-shadow: var(--shadow);
+      }
+
+      .notification.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding: 0.5rem;
+        }
+        .vocabulary-card {
+          padding: 0.75rem;
+        }
+        .form-group input {
+          font-size: 0.85rem;
+        }
+        .image-preview {
+          height: 80px;
+        }
+        .buttons {
+          flex-direction: column;
+        }
+        .btn {
+          width: 100%;
+        }
+        .suggestions {
+          top: calc(100% + 5px);
+          left: 0;
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <a href="vocabulary.html" class="back-button">
+          <i class="fas fa-arrow-left"></i>
+        </a>
+      </div>
+
+      <div class="vocabulary-cards" id="vocabularyCards"></div>
+
+      <div class="buttons">
+        <button class="btn btn-secondary" onclick="addCard()">
+          <i class="fas fa-plus"></i> Thêm thẻ
+        </button>
+        <button class="btn btn-primary" onclick="createFlashcards()">
+          <i class="fas fa-save"></i> Lưu
+        </button>
+      </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script>
+      let currentFolderId = null;
+      const DEFAULT_CARDS = 3;
+
+      window.addEventListener("load", () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        currentFolderId = urlParams.get("id");
+
+        if (!currentFolderId) {
+          showNotification("Không tìm thấy thư mục!", "error");
+          window.location.href = "index.html";
+          return;
+        }
+
+        const existingFlashcards = localStorage.getItem(
+          `flashcards_${currentFolderId}`
+        );
+        if (existingFlashcards) {
+          window.location.href = `study-options.html?id=${currentFolderId}`;
+          return;
+        }
+
+        for (let i = 0; i < DEFAULT_CARDS; i++) addCard();
+      });
+
+      function addCard(data = {}) {
+        const cardId = Date.now();
+        const card = document.createElement("div");
+        card.className = "vocabulary-card";
+        card.setAttribute("data-id", cardId);
+        card.innerHTML = `
+          <button class="delete-button" onclick="deleteCard(${cardId})">
+            <i class="fas fa-trash"></i>
+          </button>
+          <div class="card-content">
+            <div class="form-group">
+              <label>Từ vựng</label>
+              <input type="text" class="word-input" placeholder="Nhập từ vựng" value="${
+                data.word || ""
+              }">
+              <div class="suggestions" id="suggestions-${cardId}"></div>
+            </div>
+            <div class="form-group">
+              <label>Nghĩa</label>
+              <input type="text" class="meaning-input" placeholder="Nhập nghĩa" value="${
+                data.meaning || ""
+              }">
+            </div>
+            <div class="form-group">
+              <label>Hình ảnh</label>
+              <div class="image-preview" id="preview-${cardId}" onclick="triggerFileInput(${cardId})">
+                ${
+                  data.image
+                    ? `<img src="${data.image}" alt="Preview">`
+                    : '<i class="fas fa-cloud-upload-alt"></i>'
+                }
+                <input type="file" accept="image/*" onchange="previewImage(event, ${cardId})">
+              </div>
+            </div>
+          </div>
+        `;
+        document.getElementById("vocabularyCards").appendChild(card);
+
+        const wordInput = card.querySelector(".word-input");
+        wordInput.addEventListener("input", (e) =>
+          fetchSuggestions(e.target, cardId)
+        );
+        wordInput.addEventListener("focus", (e) =>
+          fetchSuggestions(e.target, cardId)
+        );
+        wordInput.addEventListener("blur", () => {
+          setTimeout(() => {
+            document.getElementById(`suggestions-${cardId}`).style.display =
+              "none";
+          }, 200);
+        });
+      }
+
+      function deleteCard(cardId) {
+        const card = document.querySelector(
+          `.vocabulary-card[data-id="${cardId}"]`
+        );
+        if (card) {
+          card.remove();
+          if (document.querySelectorAll(".vocabulary-card").length === 0) {
+            addCard();
+          }
+        }
+      }
+
+      async function fetchSuggestions(inputElement, cardId) {
+        const suggestionsDiv = document.getElementById(`suggestions-${cardId}`);
+        suggestionsDiv.innerHTML = "";
+        suggestionsDiv.style.display = "none";
+
+        const query = inputElement.value.trim();
+        if (query.length < 1) return;
+
+        try {
+          const response = await fetch(
+            `https://api.datamuse.com/words?sp=${query}*`
+          );
+          const data = await response.json();
+          const suggestions = data.slice(0, 5);
+
+          if (suggestions.length > 0) {
+            suggestions.forEach((item) => {
+              const suggestion = document.createElement("div");
+              suggestion.textContent = item.word;
+              suggestion.addEventListener("click", () => {
+                inputElement.value = item.word;
+                suggestionsDiv.style.display = "none";
+              });
+              suggestionsDiv.appendChild(suggestion);
+            });
+            suggestionsDiv.style.display = "block";
+          }
+        } catch (error) {
+          console.error("Lỗi khi lấy gợi ý:", error);
+        }
+      }
+
+      function previewImage(event, cardId) {
+        const file = event.target.files[0];
+        if (file) {
+          if (file.size > 5 * 1024 * 1024) {
+            showNotification("Ảnh quá lớn (max 5MB)!", "error");
+            return;
+          }
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            document.getElementById(`preview-${cardId}`).innerHTML = `
+              <img src="${e.target.result}" alt="Preview">
+              <input type="file" accept="image/*" onchange="previewImage(event, ${cardId})">
+            `;
+          };
+          reader.readAsDataURL(file);
+        }
+      }
+
+      function triggerFileInput(cardId) {
+        document.querySelector(`#preview-${cardId} input[type="file"]`).click();
+      }
+
+      function createFlashcards() {
+        const cards = [];
+        let hasError = false;
+
+        document.querySelectorAll(".vocabulary-card").forEach((card) => {
+          const word = card.querySelector(".word-input").value.trim();
+          const meaning = card.querySelector(".meaning-input").value.trim();
+          const image = card.querySelector(".image-preview img")?.src;
+
+          if (word && meaning) {
+            if (
+              cards.some((c) => c.word.toLowerCase() === word.toLowerCase())
+            ) {
+              hasError = true;
+              showNotification(`Từ "${word}" bị trùng!`, "error");
+              return;
+            }
+            cards.push({ word, meaning, image });
+          } else if (word || meaning) {
+            hasError = true;
+            showNotification("Vui lòng nhập đầy đủ từ và nghĩa!", "error");
+          }
+        });
+
+        if (hasError) return;
+        if (!cards.length) {
+          showNotification("Nhập ít nhất 1 từ!", "warning");
+          return;
+        }
+
+        try {
+          localStorage.setItem(
+            `flashcards_${currentFolderId}`,
+            JSON.stringify(cards)
+          );
+          const folders =
+            JSON.parse(localStorage.getItem("vocabularyFolders")) || {};
+          for (let i = 1; i <= 7; i++) {
+            const dayKey = `day${i}`;
+            const folder = folders[dayKey]?.find(
+              (f) => f.id === parseInt(currentFolderId)
+            );
+            if (folder) {
+              folder.wordCount = cards.length;
+              localStorage.setItem(
+                "vocabularyFolders",
+                JSON.stringify(folders)
+              );
+              break;
+            }
+          }
+          showNotification("Đã lưu thành công!", "success");
+          setTimeout(
+            () =>
+              (window.location.href = `study-options.html?id=${currentFolderId}`),
+            1000
+          );
+        } catch (e) {
+          showNotification("Lỗi khi lưu! Dữ liệu quá lớn.", "error");
+        }
+      }
+
+      function showNotification(message, type) {
+        const notification = document.getElementById("notification");
+        notification.textContent = message;
+        notification.style.backgroundColor =
+          type === "success" ? "var(--success)" : "var(--error)";
+        notification.classList.add("show");
+        setTimeout(() => notification.classList.remove("show"), 3000);
+      }
+    </script>
+  </body>
+</html>

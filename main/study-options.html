@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chọn Phương Pháp Học | Vocabulary Manager</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary-color: #007bff;
+        --secondary-color: #00b4ff;
+        --background: #f7f9fc;
+        --card-bg: #ffffff;
+        --text-primary: #1a2a44;
+        --text-secondary: #6b7280;
+        --border-color: #e5e7eb;
+        --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        --success: #22c55e;
+        --error: #ef4444;
+        --warning: #f59e0b;
+        --light-blue: #e6f0fa;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes scaleIn {
+        from {
+          transform: scale(0.95);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Fira Code", Menlo, Courier, monospace;
+      }
+
+      body {
+        background: var(--background);
+        color: var(--text-primary);
+        min-height: 100vh;
+        padding: 2rem;
+        animation: fadeIn 0.5s ease-out;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      .header {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        margin-bottom: 2rem;
+      }
+
+      .back-button {
+        padding: 0.75rem;
+        background: var(--card-bg);
+        color: var(--primary-color);
+        border: none;
+        border-radius: 50%;
+        text-decoration: none;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        box-shadow: var(--shadow);
+        transition: all 0.2s ease;
+      }
+
+      .back-button:hover {
+        background: var(--primary-color);
+        color: white;
+        transform: scale(1.05);
+      }
+
+      .folder-info {
+        background: var(--card-bg);
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow);
+        animation: scaleIn 0.3s ease-out;
+      }
+
+      .folder-info h2 {
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+        font-size: 1.5rem;
+        font-weight: 600;
+      }
+
+      .folder-stats {
+        display: flex;
+        gap: 2rem;
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+      }
+
+      .options-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .study-option {
+        background: var(--card-bg);
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow);
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .study-option:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+      }
+
+      .option-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .option-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--primary-color);
+      }
+
+      .option-description {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        line-height: 1.5;
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding: 1rem;
+        }
+
+        .header {
+          margin-bottom: 1.5rem;
+        }
+
+        .options-grid {
+          grid-template-columns: 1fr;
+          gap: 1rem;
+        }
+
+        .study-option {
+          padding: 1.5rem;
+        }
+
+        .option-icon {
+          font-size: 2rem;
+        }
+
+        .option-title {
+          font-size: 1.1rem;
+        }
+
+        .option-description {
+          font-size: 0.8rem;
+        }
+
+        .folder-info {
+          padding: 1rem;
+        }
+
+        .folder-info h2 {
+          font-size: 1.25rem;
+        }
+
+        .folder-stats {
+          flex-direction: column;
+          gap: 0.5rem;
+          font-size: 0.8rem;
+        }
+
+        .back-button {
+          width: 35px;
+          height: 35px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <a href="vocabulary.html" class="back-button">
+          <i class="fas fa-arrow-left"></i>
+        </a>
+      </div>
+
+      <div class="folder-info">
+        <h2 id="folderName">Loading...</h2>
+        <div class="folder-stats">
+          <span id="wordCount">Số từ: ...</span>
+          <span id="lastReviewed">Lần ôn tập cuối: ...</span>
+        </div>
+      </div>
+
+      <div class="options-grid">
+        <div class="study-option" onclick="navigateToStudy('flashcards')">
+          <div class="option-icon">🎴</div>
+          <h3 class="option-title">Flashcards</h3>
+          <p class="option-description">
+            Học với thẻ ghi nhớ. Xem từ vựng và nghĩa, kèm hình ảnh và âm thanh.
+          </p>
+        </div>
+
+        <div class="study-option" onclick="navigateToStudy('quiz')">
+          <div class="option-icon">📝</div>
+          <h3 class="option-title">Trắc nghiệm</h3>
+          <p class="option-description">
+            Kiểm tra kiến thức với các câu hỏi trắc nghiệm về từ vựng.
+          </p>
+        </div>
+
+        <div class="study-option" onclick="navigateToStudy('matching')">
+          <div class="option-icon">🔄</div>
+          <h3 class="option-title">Ghép cặp</h3>
+          <p class="option-description">
+            Ghép các từ vựng với nghĩa tương ứng của chúng.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let currentFolderId = null;
+
+      window.addEventListener("load", () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        currentFolderId = urlParams.get("id");
+
+        if (!currentFolderId) {
+          alert("Không tìm thấy thông tin thư mục!");
+          window.location.href = "index.html";
+          return;
+        }
+
+        const hasFlashcards = localStorage.getItem(
+          `flashcards_${currentFolderId}`
+        );
+        if (!hasFlashcards) {
+          alert("Vui lòng nhập từ vựng trước khi học!");
+          window.location.href = `vocabulary-input.html?id=${currentFolderId}`;
+          return;
+        }
+
+        loadFolderInfo();
+      });
+
+      function loadFolderInfo() {
+        const folders = JSON.parse(localStorage.getItem("vocabularyFolders"));
+        let folder = null;
+
+        for (let i = 1; i <= 7; i++) {
+          const foundFolder = folders[`day${i}`].find(
+            (f) => f.id === parseInt(currentFolderId)
+          );
+          if (foundFolder) {
+            folder = foundFolder;
+            break;
+          }
+        }
+
+        if (folder) {
+          document.getElementById("folderName").textContent = folder.name;
+          document.getElementById("wordCount").textContent = `Số từ: ${
+            folder.wordCount || 0
+          }`;
+          document.getElementById(
+            "lastReviewed"
+          ).textContent = `Lần ôn tập cuối: ${
+            folder.lastReviewed || "Chưa ôn tập"
+          }`;
+        }
+      }
+
+      function navigateToStudy(mode) {
+        const pages = {
+          flashcards: "flashcards.html",
+          quiz: "quiz.html",
+          matching: "word-puzzle.html",
+          writing: "sentence-builder.html",
+          review: "review.html",
+          listening: "listening.html",
+        };
+
+        const page = pages[mode];
+        if (page) {
+          window.location.href = `${page}?id=${currentFolderId}&mode=${mode}`;
+        }
+      }
+    </script>
+  </body>
+</html>

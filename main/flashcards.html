@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flashcards | Vocabulary Manager</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary-color: #007bff;
+        --secondary-color: #00b4ff;
+        --background: #f7f9fc;
+        --card-bg: #ffffff;
+        --text-primary: #1a2a44;
+        --text-secondary: #6b7280;
+        --border-color: #e5e7eb;
+        --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        --success: #22c55e;
+        --error: #ef4444;
+        --warning: #f59e0b;
+        --light-blue: #e6f0fa;
+        --highlight-border: 2px solid #007bff;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes scaleIn {
+        from {
+          transform: scale(0.95);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Fira Code", Menlo, Courier, monospace;
+      }
+
+      body {
+        background: var(--background);
+        min-height: 100vh;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        animation: fadeIn 0.5s ease-out;
+      }
+
+      .container {
+        max-width: 1000px;
+        width: 100%;
+      }
+
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        margin-bottom: 2rem;
+      }
+
+      .back-button {
+        padding: 0.75rem;
+        border-radius: 50%;
+        background: var(--card-bg);
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 500;
+        box-shadow: var(--shadow);
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+      }
+
+      .back-button:hover {
+        background: var(--primary-color);
+        color: white;
+        transform: scale(1.05);
+      }
+
+      .flashcard-container {
+        position: relative;
+        width: 100%;
+        max-width: 900px;
+        height: 600px;
+        margin: 0 auto;
+        perspective: 1000px;
+        contain: content;
+        animation: scaleIn 0.3s ease-out;
+      }
+
+      .flashcard {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        transform-style: preserve-3d;
+        transition: transform 0.6s ease-in-out;
+        cursor: pointer;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        border: var(--highlight-border);
+      }
+
+      .flashcard.flipped {
+        transform: rotateY(180deg);
+      }
+
+      .card-face {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: var(--card-bg);
+        border-radius: 12px;
+        padding: 2rem;
+        overflow: hidden;
+        overflow-wrap: break-word;
+        word-break: break-word;
+      }
+
+      .card-back {
+        transform: rotateY(180deg);
+        background: var(--light-blue);
+      }
+
+      .card-word {
+        font-size: 2.25rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+        text-align: center;
+        max-width: 100%;
+      }
+
+      .card-phonetic {
+        font-size: 1.1rem;
+        color: var(--text-secondary);
+        margin-bottom: 1rem;
+        max-width: 100%;
+      }
+
+      .card-image {
+        max-width: 300px;
+        max-height: 200px;
+        object-fit: contain;
+        margin-bottom: 1.5rem;
+        border-radius: 8px;
+      }
+
+      .card-counter {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+      }
+
+      .card-controls {
+        margin-top: 2rem;
+        display: flex;
+        gap: 0.75rem;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .control-btn {
+        padding: 0.65rem 1.25rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        background: var(--card-bg);
+        color: var(--primary-color);
+        box-shadow: var(--shadow);
+        transition: all 0.2s ease;
+      }
+
+      .control-btn:hover {
+        transform: translateY(-1px) scale(1.02);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+      }
+
+      .control-btn.primary {
+        background: var(--primary-color);
+        color: white;
+      }
+
+      .control-btn.active {
+        background: var(--secondary-color);
+        color: white;
+      }
+
+      .action-buttons {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        display: flex;
+        gap: 0.75rem;
+      }
+
+      .action-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--card-bg);
+        color: var(--primary-color);
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: var(--shadow);
+        transition: all 0.2s ease;
+      }
+
+      .action-btn:hover {
+        transform: scale(1.05);
+        background: var(--primary-color);
+        color: white;
+      }
+
+      .dictionary-modal,
+      .edit-modal {
+        display: none;
+        position: fixed;
+        top: 50%;
+        right: 2rem;
+        transform: translateY(-50%);
+        width: 350px;
+        background: var(--card-bg);
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        padding: 2rem;
+        max-height: 85vh;
+        overflow-y: auto;
+        z-index: 1000;
+        animation: fadeIn 0.3s ease-out;
+      }
+
+      .dictionary-modal.active,
+      .edit-modal.active {
+        display: block;
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+      }
+
+      .modal-header h2 {
+        font-size: 1.5rem;
+        color: var(--primary-color);
+      }
+
+      .close-btn {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .close-btn:hover {
+        color: var(--primary-color);
+      }
+
+      .edit-form label {
+        display: block;
+        font-size: 1rem;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+      }
+
+      .edit-form input,
+      .edit-form textarea {
+        width: 100%;
+        padding: 0.5rem;
+        margin-bottom: 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        font-family: "Fira Code", Menlo, Courier, monospace;
+      }
+
+      .edit-form textarea {
+        resize: vertical;
+        min-height: 80px;
+      }
+
+      .edit-form button {
+        padding: 0.65rem 1.25rem;
+        border: none;
+        border-radius: 8px;
+        background: var(--primary-color);
+        color: white;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .edit-form button:hover {
+        background: var(--secondary-color);
+      }
+
+      .dict-word {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: var(--primary-color);
+      }
+
+      .dict-phonetic {
+        color: var(--text-secondary);
+        font-size: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .dict-meaning {
+        margin-bottom: 1.5rem;
+      }
+
+      .dict-meaning h3 {
+        color: var(--primary-color);
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .dict-translation {
+        font-size: 1rem;
+        color: var(--text-primary);
+      }
+
+      .dict-example {
+        color: var(--text-secondary);
+        font-style: italic;
+        margin: 0.5rem 0;
+        padding-left: 1rem;
+        border-left: 2px solid var(--primary-color);
+      }
+
+      .progress-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: var(--border-color);
+      }
+
+      .progress {
+        height: 100%;
+        background: var(--primary-color);
+        transition: width 0.3s ease;
+      }
+
+      @media (max-width: 768px) {
+        .flashcard-container {
+          width: 100%;
+          max-width: 600px;
+          height: 500px;
+        }
+
+        .card-word {
+          font-size: 1.75rem;
+        }
+
+        .card-phonetic {
+          font-size: 0.9rem;
+        }
+
+        .card-image {
+          max-width: 250px;
+          max-height: 150px;
+        }
+
+        .control-btn {
+          padding: 0.5rem 1rem;
+          font-size: 0.85rem;
+        }
+
+        .action-btn {
+          width: 35px;
+          height: 35px;
+        }
+
+        .dictionary-modal,
+        .edit-modal {
+          width: 90%;
+          right: 5%;
+          padding: 1.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="progress-bar">
+      <div class="progress" id="progress"></div>
+    </div>
+
+    <div class="container">
+      <div class="header">
+        <a href="#" class="back-button" id="backButton">
+          <i class="fas fa-arrow-left"></i>
+        </a>
+      </div>
+
+      <div class="flashcard-container">
+        <div class="flashcard" onclick="flipCard(this)">
+          <div class="card-face card-front">
+            <span class="card-counter" id="cardCounter"></span>
+            <div class="action-buttons">
+              <button class="action-btn" onclick="playAudio(event)">
+                <i class="fas fa-volume-up"></i>
+              </button>
+              <button class="action-btn" onclick="toggleDictionary(event)">
+                <i class="fas fa-book"></i>
+              </button>
+              <button class="action-btn" onclick="toggleFavorite(event)">
+                <i class="far fa-star" id="favoriteIcon"></i>
+              </button>
+              <button class="action-btn" onclick="toggleEditModal(event)">
+                <i class="fas fa-edit"></i>
+              </button>
+            </div>
+          </div>
+          <div class="card-face card-back"></div>
+        </div>
+      </div>
+
+      <div class="card-controls">
+        <button class="control-btn" onclick="previousCard()">
+          <i class="fas fa-chevron-left"></i> Trước
+        </button>
+        <button class="control-btn" onclick="randomCard()">
+          <i class="fas fa-random"></i> Ngẫu nhiên
+        </button>
+        <button class="control-btn" onclick="toggleAutoPlay()">
+          <i class="fas fa-play" id="autoPlayIcon"></i> Tự động
+        </button>
+        <button class="control-btn primary" onclick="nextCard()">
+          Tiếp <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="dictionary-modal" id="dictionaryModal">
+      <div class="modal-header">
+        <h2>Từ điển</h2>
+        <button class="close-btn" onclick="toggleDictionary(event)">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div id="dictionaryContent"></div>
+    </div>
+
+    <div class="edit-modal" id="editModal">
+      <div class="modal-header">
+        <h2>Sửa Flashcard</h2>
+        <button class="close-btn" onclick="toggleEditModal(event)">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <form class="edit-form" onsubmit="saveEdit(event)">
+        <label for="editWord">Từ vựng:</label>
+        <input type="text" id="editWord" required />
+        <label for="editIPA">Phiên âm (IPA):</label>
+        <input type="text" id="editIPA" />
+        <label for="editMeaning">Nghĩa:</label>
+        <textarea id="editMeaning" required></textarea>
+        <label for="editImage">URL hình ảnh (nếu có):</label>
+        <input type="url" id="editImage" />
+        <button type="submit">Lưu</button>
+      </form>
+    </div>
+
+    <script>
+      let currentIndex = 0;
+      let flashcards = [];
+      let autoPlayInterval = null;
+
+      window.addEventListener("load", () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const folderId = urlParams.get("id");
+
+        if (!folderId) {
+          alert("Không tìm thấy thông tin thư mục!");
+          window.location.href = "index.html";
+          return;
+        }
+
+        document.getElementById(
+          "backButton"
+        ).href = `study-options.html?id=${folderId}`;
+        const cardsData = localStorage.getItem(`flashcards_${folderId}`);
+        if (cardsData) {
+          flashcards = JSON.parse(cardsData);
+          flashcards.forEach(
+            (card) => (card.favorite = card.favorite || false)
+          );
+          showCard(0);
+          updateProgress();
+        }
+      });
+
+      function showCard(index) {
+        if (flashcards.length === 0) return;
+
+        currentIndex = index;
+        const card = flashcards[index];
+        const frontSide = document.querySelector(".card-front");
+        const backSide = document.querySelector(".card-back");
+
+        frontSide.innerHTML = `
+          <span class="card-counter" id="cardCounter">${currentIndex + 1}/${
+          flashcards.length
+        }</span>
+          <div class="action-buttons">
+            <button class="action-btn" onclick="playAudio(event)">
+              <i class="fas fa-volume-up"></i>
+            </button>
+            <button class="action-btn" onclick="toggleDictionary(event)">
+              <i class="fas fa-book"></i>
+            </button>
+            <button class="action-btn" onclick="toggleFavorite(event)">
+              <i class="${
+                card.favorite ? "fas" : "far"
+              } fa-star" id="favoriteIcon"></i>
+            </button>
+            <button class="action-btn" onclick="toggleEditModal(event)">
+              <i class="fas fa-edit"></i>
+            </button>
+          </div>
+          ${
+            card.image
+              ? `<img src="${card.image}" class="card-image" alt="${card.word}">`
+              : ""
+          }
+          <div class="card-word">${card.word}</div>
+          <div class="card-phonetic">${card.ipa || ""}</div>
+        `;
+
+        backSide.innerHTML = `
+          <div class="card-word">${card.meaning}</div>
+        `;
+
+        updateProgress();
+      }
+
+      function updateProgress() {
+        const progress = document.getElementById("progress");
+        const percentage = ((currentIndex + 1) / flashcards.length) * 100;
+        progress.style.width = `${percentage}%`;
+      }
+
+      function flipCard(element) {
+        element.classList.toggle("flipped");
+      }
+
+      function nextCard() {
+        if (currentIndex < flashcards.length - 1) {
+          currentIndex++;
+          showCard(currentIndex);
+          document.querySelector(".flashcard").classList.remove("flipped");
+        }
+      }
+
+      function previousCard() {
+        if (currentIndex > 0) {
+          currentIndex--;
+          showCard(currentIndex);
+          document.querySelector(".flashcard").classList.remove("flipped");
+        }
+      }
+
+      function randomCard() {
+        const newIndex = Math.floor(Math.random() * flashcards.length);
+        currentIndex = newIndex;
+        showCard(currentIndex);
+        document.querySelector(".flashcard").classList.remove("flipped");
+      }
+
+      function toggleAutoPlay() {
+        const btn = document.querySelector(
+          ".control-btn[onclick='toggleAutoPlay()']"
+        );
+        const icon = document.getElementById("autoPlayIcon");
+
+        if (autoPlayInterval) {
+          clearInterval(autoPlayInterval);
+          autoPlayInterval = null;
+          btn.classList.remove("active");
+          icon.classList.remove("fa-pause");
+          icon.classList.add("fa-play");
+        } else {
+          autoPlayInterval = setInterval(() => {
+            if (currentIndex < flashcards.length - 1) {
+              nextCard();
+            } else {
+              clearInterval(autoPlayInterval);
+              autoPlayInterval = null;
+              btn.classList.remove("active");
+              icon.classList.remove("fa-pause");
+              icon.classList.add("fa-play");
+            }
+          }, 3000);
+          btn.classList.add("active");
+          icon.classList.remove("fa-play");
+          icon.classList.add("fa-pause");
+        }
+      }
+
+      function toggleFavorite(event) {
+        event.stopPropagation();
+        flashcards[currentIndex].favorite = !flashcards[currentIndex].favorite;
+        const folderId = new URLSearchParams(window.location.search).get("id");
+        localStorage.setItem(
+          `flashcards_${folderId}`,
+          JSON.stringify(flashcards)
+        );
+        showCard(currentIndex);
+      }
+
+      function playAudio(event) {
+        event.stopPropagation();
+        const utterance = new SpeechSynthesisUtterance(
+          flashcards[currentIndex].word
+        );
+        utterance.lang = "en-US";
+        speechSynthesis.speak(utterance);
+      }
+
+      async function toggleDictionary(event) {
+        event.stopPropagation();
+        const modal = document.getElementById("dictionaryModal");
+        modal.classList.toggle("active");
+        if (modal.classList.contains("active")) {
+          await searchDictionary();
+        }
+      }
+
+      function toggleEditModal(event) {
+        event.stopPropagation();
+        const modal = document.getElementById("editModal");
+        modal.classList.toggle("active");
+
+        if (modal.classList.contains("active")) {
+          const card = flashcards[currentIndex];
+          document.getElementById("editWord").value = card.word;
+          document.getElementById("editIPA").value = card.ipa || "";
+          document.getElementById("editMeaning").value = card.meaning;
+          document.getElementById("editImage").value = card.image || "";
+        }
+      }
+
+      function saveEdit(event) {
+        event.preventDefault();
+        const word = document.getElementById("editWord").value;
+        const ipa = document.getElementById("editIPA").value;
+        const meaning = document.getElementById("editMeaning").value;
+        const image = document.getElementById("editImage").value;
+
+        flashcards[currentIndex] = {
+          ...flashcards[currentIndex],
+          word,
+          ipa,
+          meaning,
+          image: image || flashcards[currentIndex].image,
+        };
+
+        const folderId = new URLSearchParams(window.location.search).get("id");
+        localStorage.setItem(
+          `flashcards_${folderId}`,
+          JSON.stringify(flashcards)
+        );
+        showCard(currentIndex);
+        document.getElementById("editModal").classList.remove("active");
+      }
+
+      async function searchDictionary() {
+        const word = flashcards[currentIndex].word;
+        const dictionaryContent = document.getElementById("dictionaryContent");
+        dictionaryContent.innerHTML =
+          '<div class="loading">Đang tìm kiếm...</div>';
+
+        try {
+          const response = await fetch(
+            `https://api.dictionaryapi.dev/api/v2/entries/en/${word}`
+          );
+          const data = await response.json();
+
+          if (Array.isArray(data)) {
+            const entry = data[0];
+            const phonetic =
+              entry.phonetic || flashcards[currentIndex].ipa || "";
+            let html = `
+              <div class="dict-word">${word}</div>
+              <div class="dict-phonetic">${phonetic}</div>
+            `;
+
+            entry.meanings.forEach((meaning) => {
+              html += `
+                <div class="dict-meaning">
+                  <h3>${meaning.partOfSpeech}</h3>
+                  <div class="dict-translation">${
+                    meaning.definitions[0].definition
+                  }</div>
+                  ${
+                    meaning.definitions[0].example
+                      ? `<div class="dict-example">${meaning.definitions[0].example}</div>`
+                      : ""
+                  }
+                </div>
+              `;
+            });
+
+            const vietnameseMeaning =
+              flashcards[currentIndex].meaning || "Không có nghĩa tiếng Việt";
+            html += `
+              <div class="dict-meaning">
+                <h3>Tiếng Việt</h3>
+                <div class="dict-translation">${vietnameseMeaning}</div>
+              </div>
+            `;
+
+            dictionaryContent.innerHTML = html;
+          } else {
+            dictionaryContent.innerHTML = `<div>Không tìm thấy từ "${word}"</div>`;
+          }
+        } catch (error) {
+          dictionaryContent.innerHTML = `<div>Đã xảy ra lỗi khi tra từ điển</div>`;
+          console.error(error);
+        }
+      }
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === " ") flipCard(document.querySelector(".flashcard"));
+        else if (e.key === "ArrowLeft") previousCard();
+        else if (e.key === "ArrowRight") nextCard();
+        else if (e.key.toLowerCase() === "r") randomCard();
+        else if (e.key.toLowerCase() === "p") playAudio(new Event("keydown"));
+        else if (e.key.toLowerCase() === "d")
+          toggleDictionary(new Event("keydown"));
+        else if (e.key.toLowerCase() === "a") toggleAutoPlay();
+        else if (e.key.toLowerCase() === "e")
+          toggleEditModal(new Event("keydown"));
+      });
+
+      document.addEventListener("click", (e) => {
+        const dictModal = document.getElementById("dictionaryModal");
+        const editModal = document.getElementById("editModal");
+        if (
+          dictModal.classList.contains("active") &&
+          !dictModal.contains(e.target) &&
+          !e.target.closest(".action-btn")
+        ) {
+          dictModal.classList.remove("active");
+        }
+        if (
+          editModal.classList.contains("active") &&
+          !editModal.contains(e.target) &&
+          !e.target.closest(".action-btn")
+        ) {
+          editModal.classList.remove("active");
+        }
+      });
+
+      let touchStartX = 0;
+      document
+        .querySelector(".flashcard")
+        .addEventListener("touchstart", (e) => {
+          touchStartX = e.changedTouches[0].screenX;
+        });
+
+      document.querySelector(".flashcard").addEventListener("touchend", (e) => {
+        const touchEndX = e.changedTouches[0].screenX;
+        if (touchEndX - touchStartX > 50) previousCard();
+        else if (touchStartX - touchEndX > 50) nextCard();
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trắc Nghiệm | Vocabulary Manager</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary-color: #007bff;
+        --secondary-color: #00b4ff;
+        --background: #f7f9fc;
+        --card-bg: #ffffff;
+        --text-primary: #1a2a44;
+        --text-secondary: #6b7280;
+        --border-color: #e5e7eb;
+        --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        --success: #22c55e;
+        --error: #ef4444;
+        --warning: #f59e0b;
+        --light-blue: #e6f0fa;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes scaleIn {
+        from {
+          transform: scale(0.95);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Fira Code", Menlo, Courier, monospace;
+      }
+
+      body {
+        background: var(--background);
+        min-height: 100vh;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .container {
+        max-width: 1000px;
+        width: 100%;
+      }
+
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        margin-bottom: 2rem;
+      }
+
+      .back-button {
+        padding: 0.75rem;
+        border-radius: 50%;
+        background: var(--card-bg);
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 500;
+        box-shadow: var(--shadow);
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+      }
+
+      .back-button:hover {
+        background: var(--primary-color);
+        color: white;
+        transform: scale(1.05);
+      }
+
+      .quiz-container {
+        background: var(--card-bg);
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+      }
+
+      .quiz-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+      }
+
+      .quiz-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--primary-color);
+      }
+
+      .quiz-info {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+      }
+
+      .timer {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 500;
+        color: var(--primary-color);
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 4px;
+        background: var(--border-color);
+        border-radius: 999px;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+      }
+
+      .progress {
+        height: 100%;
+        background: var(--primary-color);
+        transition: width 0.3s ease;
+      }
+
+      .question {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        color: var(--text-primary);
+      }
+
+      .options {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .option {
+        padding: 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        cursor: pointer;
+        background: var(--card-bg);
+        transition: all 0.2s ease;
+        font-size: 0.9rem;
+      }
+
+      .option:hover {
+        border-color: var(--primary-color);
+        box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1);
+      }
+
+      .option.selected {
+        border-color: var(--primary-color);
+        background: var(--light-blue);
+      }
+
+      .option.correct {
+        border-color: var(--success);
+        background: rgba(34, 197, 94, 0.1);
+        animation: fadeIn 0.2s ease-out;
+      }
+
+      .option.wrong {
+        border-color: var(--error);
+        background: rgba(239, 68, 68, 0.1);
+        animation: fadeIn 0.2s ease-out;
+      }
+
+      .quiz-controls {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        padding: 0.65rem 1.25rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        background: var(--card-bg);
+        color: var(--primary-color);
+        box-shadow: var(--shadow);
+        transition: all 0.2s ease;
+      }
+
+      .btn:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+      }
+
+      .btn-primary {
+        background: var(--primary-color);
+        color: white;
+      }
+
+      .btn-secondary {
+        background: var(--light-blue);
+        color: var(--primary-color);
+      }
+
+      .hint-btn {
+        background: var(--warning);
+        color: white;
+      }
+
+      .result-container {
+        text-align: center;
+        padding: 2rem;
+        background: var(--card-bg);
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+      }
+
+      .result-title {
+        font-size: 2rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+      }
+
+      .result-score {
+        font-size: 1.5rem;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+      }
+
+      .notification {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 0.75rem 1.25rem;
+        font-size: 0.9rem;
+        border-radius: 8px;
+        color: white;
+        box-shadow: var(--shadow);
+        z-index: 1000;
+        transform: translateY(100px);
+        opacity: 0;
+        transition: all 0.3s ease;
+      }
+
+      .notification.show {
+        transform: translateY(0);
+        opacity: 1;
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding: 1rem;
+        }
+
+        .quiz-container,
+        .result-container {
+          padding: 1.5rem;
+        }
+
+        .quiz-title {
+          font-size: 1.25rem;
+        }
+
+        .quiz-info {
+          gap: 0.75rem;
+          font-size: 0.85rem;
+        }
+
+        .question {
+          font-size: 1.1rem;
+        }
+
+        .options {
+          grid-template-columns: 1fr;
+          gap: 0.5rem;
+        }
+
+        .option {
+          padding: 0.75rem;
+          font-size: 0.85rem;
+        }
+
+        .btn {
+          padding: 0.5rem 1rem;
+          font-size: 0.85rem;
+        }
+
+        .result-title {
+          font-size: 1.75rem;
+        }
+
+        .result-score {
+          font-size: 1.25rem;
+        }
+
+        .notification {
+          padding: 0.5rem 1rem;
+          font-size: 0.85rem;
+          right: 15px;
+          bottom: 15px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <a href="#" class="back-button" id="backButton">
+          <i class="fas fa-arrow-left"></i>
+        </a>
+      </div>
+
+      <div class="quiz-container" id="quizContainer">
+        <div class="progress-bar">
+          <div class="progress" id="progressBar"></div>
+        </div>
+        <div class="quiz-header">
+          <h2 class="quiz-title" id="folderName">Loading...</h2>
+          <div class="quiz-info">
+            <span id="progressText">0/0</span>
+            <span class="timer"
+              ><i class="fas fa-clock"></i> <span id="timer">15</span>s</span
+            >
+          </div>
+        </div>
+        <div class="question" id="questionText">Loading...</div>
+        <div class="options" id="optionsContainer"></div>
+        <div class="quiz-controls">
+          <button
+            class="btn btn-secondary hint-btn"
+            id="hintBtn"
+            onclick="showHint()"
+          >
+            <i class="fas fa-lightbulb"></i> Gợi ý
+          </button>
+          <button
+            class="btn btn-primary"
+            id="nextBtn"
+            onclick="nextQuestion()"
+            style="display: none"
+          >
+            <i class="fas fa-arrow-right"></i> Tiếp theo
+          </button>
+        </div>
+      </div>
+
+      <div class="result-container" id="resultContainer" style="display: none">
+        <h2 class="result-title">Kết Quả</h2>
+        <div class="result-score" id="resultScore"></div>
+        <div class="quiz-controls">
+          <button class="btn btn-primary" onclick="restartQuiz()">
+            <i class="fas fa-redo"></i> Làm lại
+          </button>
+          <a href="study-options.html" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Quay lại
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <!-- Thêm audio elements -->
+    <audio
+      id="correctSound"
+      src="../main/Am_thanh_lua_chon_Dung-www_tiengdong_com.mp3"
+    ></audio>
+    <audio
+      id="wrongSound"
+      src="../main/Am_thanh_khi_chon_nham-www_tiengdong_com.mp3"
+    ></audio>
+
+    <script>
+      let currentFolderId = null;
+      let flashcards = [];
+      let currentQuestion = 0;
+      let score = 0;
+      let questions = [];
+      let selectedAnswer = null;
+      let timeLeft = 15;
+      let timerInterval = null;
+
+      const correctSound = document.getElementById("correctSound");
+      const wrongSound = document.getElementById("wrongSound");
+
+      window.onload = () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        currentFolderId = urlParams.get("id");
+
+        if (!currentFolderId) {
+          showNotification("Không tìm thấy thư mục!", "error");
+          setTimeout(() => (window.location.href = "study-options.html"), 2000);
+          return;
+        }
+
+        const backButton = document.getElementById("backButton");
+        backButton.href = `study-options.html?id=${currentFolderId}`;
+
+        loadQuizData();
+      };
+
+      function loadQuizData() {
+        const flashcardsData = localStorage.getItem(
+          `flashcards_${currentFolderId}`
+        );
+        const foldersData = localStorage.getItem("vocabularyFolders");
+
+        if (!flashcardsData || !foldersData) {
+          showNotification("Chưa có từ vựng để làm trắc nghiệm!", "warning");
+          setTimeout(
+            () =>
+              (window.location.href = `vocabulary-input.html?id=${currentFolderId}`),
+            2000
+          );
+          return;
+        }
+
+        flashcards = JSON.parse(flashcardsData);
+        if (flashcards.length === 0) {
+          showNotification("Thư mục này chưa có từ vựng!", "warning");
+          setTimeout(
+            () =>
+              (window.location.href = `vocabulary-input.html?id=${currentFolderId}`),
+            2000
+          );
+          return;
+        }
+
+        const folders = JSON.parse(foldersData);
+        let folderName = "Unknown Folder";
+        for (let i = 1; i <= 7; i++) {
+          const folder = folders[`day${i}`]?.find(
+            (f) => f.id === parseInt(currentFolderId)
+          );
+          if (folder) {
+            folderName = folder.name;
+            break;
+          }
+        }
+        document.getElementById("folderName").textContent = folderName;
+
+        generateQuestions();
+        showQuestion();
+      }
+
+      function generateQuestions() {
+        questions = flashcards.map((card) => {
+          const correctAnswer = card.meaning;
+          const wrongAnswers = getRandomWrongAnswers(card.meaning, 3);
+          const options = [correctAnswer, ...wrongAnswers];
+          shuffleArray(options);
+
+          return {
+            question: card.word,
+            options,
+            correct: correctAnswer,
+          };
+        });
+        shuffleArray(questions);
+      }
+
+      function getRandomWrongAnswers(correctAnswer, count) {
+        const wrongAnswers = [];
+        const availableMeanings = flashcards
+          .map((card) => card.meaning)
+          .filter((m) => m !== correctAnswer);
+
+        for (let i = 0; i < count && availableMeanings.length > 0; i++) {
+          const idx = Math.floor(Math.random() * availableMeanings.length);
+          wrongAnswers.push(availableMeanings[idx]);
+          availableMeanings.splice(idx, 1);
+        }
+
+        while (wrongAnswers.length < count) {
+          wrongAnswers.push(`Nghĩa khác ${wrongAnswers.length + 1}`);
+        }
+        return wrongAnswers;
+      }
+
+      function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+      }
+
+      function startTimer() {
+        clearInterval(timerInterval);
+        timeLeft = 15;
+        document.getElementById("timer").textContent = timeLeft;
+        timerInterval = setInterval(() => {
+          timeLeft--;
+          document.getElementById("timer").textContent = timeLeft;
+          if (timeLeft <= 5)
+            document.getElementById("timer").style.color = "var(--error)";
+          if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            checkAnswer(null); // Hết giờ, coi như sai
+          }
+        }, 1000);
+      }
+
+      function showQuestion() {
+        if (currentQuestion >= questions.length) {
+          showResult();
+          return;
+        }
+
+        const question = questions[currentQuestion];
+        document.getElementById(
+          "questionText"
+        ).textContent = `Từ "${question.question}" có nghĩa là gì?`;
+        document.getElementById("progressText").textContent = `${
+          currentQuestion + 1
+        }/${questions.length}`;
+        updateProgressBar();
+
+        const optionsContainer = document.getElementById("optionsContainer");
+        optionsContainer.innerHTML = "";
+        question.options.forEach((option, idx) => {
+          const div = document.createElement("div");
+          div.className = "option";
+          div.textContent = `${String.fromCharCode(65 + idx)}. ${option}`;
+          div.onclick = () => checkAnswer(option, div);
+          optionsContainer.appendChild(div);
+        });
+
+        document.getElementById("nextBtn").style.display = "none";
+        document.getElementById("hintBtn").style.display = "flex";
+        document.getElementById("hintBtn").disabled = false;
+        selectedAnswer = null;
+        startTimer();
+      }
+
+      function updateProgressBar() {
+        const percentage = ((currentQuestion + 1) / questions.length) * 100;
+        document.getElementById("progressBar").style.width = `${percentage}%`;
+      }
+
+      function checkAnswer(answer, element) {
+        clearInterval(timerInterval);
+        selectedAnswer = answer;
+        const question = questions[currentQuestion];
+        const options = document.querySelectorAll(".option");
+
+        options.forEach((opt) => {
+          opt.style.pointerEvents = "none";
+          const optionText = opt.textContent.slice(3);
+          if (optionText === question.correct) {
+            opt.classList.add("correct");
+          } else if (optionText === selectedAnswer) {
+            opt.classList.add("wrong");
+          }
+        });
+
+        if (selectedAnswer === question.correct) {
+          score++;
+          correctSound.play();
+          showNotification("Đúng rồi! 🎉", "success");
+        } else {
+          wrongSound.play();
+          showNotification(
+            `Sai rồi! Đáp án đúng là: "${question.correct}"`,
+            "error"
+          );
+        }
+
+        document.getElementById("hintBtn").style.display = "none";
+        document.getElementById("nextBtn").style.display = "flex";
+      }
+
+      function showHint() {
+        const question = questions[currentQuestion];
+        const options = document.querySelectorAll(".option");
+        const wrongOption = Array.from(options).find(
+          (opt) =>
+            opt.textContent.slice(3) !== question.correct && !opt.style.opacity
+        );
+        if (wrongOption) {
+          wrongOption.style.opacity = "0.5";
+          wrongOption.style.pointerEvents = "none";
+          showNotification("Đã loại một đáp án sai!", "warning");
+          document.getElementById("hintBtn").disabled = true;
+        }
+      }
+
+      function nextQuestion() {
+        currentQuestion++;
+        showQuestion();
+      }
+
+      function showResult() {
+        document.getElementById("quizContainer").style.display = "none";
+        document.getElementById("resultContainer").style.display = "block";
+
+        const percentage = Math.round((score / questions.length) * 100);
+        document.getElementById(
+          "resultScore"
+        ).textContent = `Bạn đúng ${score}/${questions.length} câu (${percentage}%)`;
+        updateLastReviewed();
+      }
+
+      function updateLastReviewed() {
+        const folders =
+          JSON.parse(localStorage.getItem("vocabularyFolders")) || {};
+        for (let i = 1; i <= 7; i++) {
+          const dayKey = `day${i}`;
+          if (folders[dayKey]) {
+            const folderIdx = folders[dayKey].findIndex(
+              (f) => f.id === parseInt(currentFolderId)
+            );
+            if (folderIdx !== -1) {
+              folders[dayKey][folderIdx].lastReviewed =
+                new Date().toLocaleString();
+              localStorage.setItem(
+                "vocabularyFolders",
+                JSON.stringify(folders)
+              );
+              break;
+            }
+          }
+        }
+      }
+
+      function restartQuiz() {
+        currentQuestion = 0;
+        score = 0;
+        selectedAnswer = null;
+        generateQuestions();
+        document.getElementById("quizContainer").style.display = "block";
+        document.getElementById("resultContainer").style.display = "none";
+        showQuestion();
+      }
+
+      function showNotification(message, type = "info") {
+        const notification = document.getElementById("notification");
+        notification.textContent = message;
+        notification.style.backgroundColor =
+          type === "success"
+            ? "var(--success)"
+            : type === "error"
+            ? "var(--error)"
+            : type === "warning"
+            ? "var(--warning)"
+            : "var(--primary-color)";
+        notification.classList.add("show");
+        setTimeout(() => notification.classList.remove("show"), 2500);
+      }
+
+      document.addEventListener("keydown", (e) => {
+        if (
+          e.key === " " &&
+          document.getElementById("nextBtn").style.display !== "none"
+        ) {
+          nextQuestion();
+        } else if (e.key === "h") {
+          showHint();
+        }
+      });
+    </script>
+  </body>
+</html>
